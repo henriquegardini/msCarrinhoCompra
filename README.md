@@ -1,1 +1,1 @@
-# Microserviço responsável pela parte de carrinho de compras do sistema..
+# Microserviço responsável pela parte de carrinho de compras do sistema.
