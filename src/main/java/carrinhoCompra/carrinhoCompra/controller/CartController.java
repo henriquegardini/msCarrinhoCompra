@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/cart")
@@ -25,8 +24,8 @@ public class CartController {
             description = "Este endpoint cria um carrinho para um usuário."
     )
     @PostMapping("/create/{userId}")
-    public Mono<Cart> createCartForUser(@PathVariable UUID userId) {
-        return cartService.createNewCart(userId);
+    public Mono<Cart> createCartForUser(@PathVariable Long userId, @RequestParam String authToken) {
+        return cartService.createNewCart(userId, authToken);
     }
 
     @Operation(
@@ -34,8 +33,8 @@ public class CartController {
             description = "Este endpoint adiciona itens a um carrinho para um usuário."
     )
     @PostMapping("/{userId}/add")
-    public Flux<Cart> addItemToCart(@PathVariable UUID userId, @RequestBody CartItemRequestDTO requestDTO) {
-        return cartService.addItemToCart(userId, requestDTO);
+    public Flux<Cart> addItemToCart(@PathVariable Long userId, @RequestParam String authToken, @RequestBody CartItemRequestDTO requestDTO) {
+        return cartService.addItemToCart(userId,authToken, requestDTO);
     }
 
     @Operation(
@@ -43,8 +42,8 @@ public class CartController {
             description = "Este endpoint alterar sattus do carrinho."
     )
     @PutMapping("/{userId}/update-status")
-    public Mono<Cart> updateStatusCart(@PathVariable UUID userId) {
-        return cartService.updateStatusToCart(userId);
+    public Mono<Cart> updateStatusCart(@PathVariable Long userId, @RequestParam String authToken) {
+        return cartService.updateStatusToCart(userId, authToken);
     }
 
     @Operation(
@@ -52,8 +51,8 @@ public class CartController {
             description = "Este endpoint finalizar itens do carrinho."
     )
     @PostMapping("/{userId}/update-status")
-    public Flux<Cart> finishStatusCart(@PathVariable UUID userId) {
-        return cartService.finishStatusToCart(userId);
+    public Flux<Cart> finishStatusCart(@PathVariable Long userId, @RequestParam String authToken) {
+        return cartService.finishStatusToCart(userId, authToken);
     }
 
     @Operation(
@@ -61,8 +60,8 @@ public class CartController {
             description = "Este endpoint exclui itens a um carrinho para um usuário."
     )
     @DeleteMapping("/{userId}/remove/{itemId}")
-    public Mono<Cart> removeItemFromCart(@PathVariable UUID userId, @PathVariable Long itemId) {
-        return cartService.removeItemFromCart(userId, itemId);
+    public Mono<Cart> removeItemFromCart(@PathVariable Long userId, @RequestParam String authToken, @PathVariable Long itemId) {
+        return cartService.removeItemFromCart(userId, authToken, itemId);
     }
 }
 

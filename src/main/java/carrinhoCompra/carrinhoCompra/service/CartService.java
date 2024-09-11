@@ -3,6 +3,7 @@ package carrinhoCompra.carrinhoCompra.service;
 import carrinhoCompra.carrinhoCompra.controller.GestaoItem;
 import carrinhoCompra.carrinhoCompra.controller.UserClient;
 import carrinhoCompra.carrinhoCompra.dto.CartItemRequestDTO;
+import carrinhoCompra.carrinhoCompra.exception.UnauthorizedAccessException;
 import carrinhoCompra.carrinhoCompra.exception.UsersNotFoundException;
 import carrinhoCompra.carrinhoCompra.model.Cart;
 import carrinhoCompra.carrinhoCompra.model.CartItem;
@@ -15,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 @Service
 public class CartService {
@@ -35,20 +34,19 @@ public class CartService {
         this.gestaoItem = gestaoItem;
     }
 
-    public Mono<Cart> getCartByUserId(UUID userId) {
+    public Mono<Cart> getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
                 .flatMap(cart -> {
                     if (cart.getStatus() == Status.FINALIZADO) {
-                        return createNewCart(userId);
+                        return createNewCart(userId, authToken);
                     } else {
                         return Mono.just(cart);
                     }
-                })
-                .switchIfEmpty(Mono.defer(() -> createNewCart(userId)));
+                }).switchIfEmpty(Mono.defer(() -> createNewCart(userId, authToken)));
     }
 
-    public Mono<Cart> createNewCart(UUID userId) {
-        validateClient(userId);
+    public Mono<Cart> createNewCart(Long userId, String authToken) {
+        validateClient(userId, authToken);
         getCartByUserId(userId);
         Cart cart = new Cart();
         cart.setUserId(userId);
@@ -56,8 +54,8 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public Flux<Cart> addItemToCart(UUID userId, CartItemRequestDTO requestDTO) {
-        //validateClient(userId);
+    public Flux<Cart> addItemToCart(Long userId, String authToken, CartItemRequestDTO requestDTO) {
+        validateClient(userId, authToken);
 
         Long itemId = requestDTO.getItemId();
         Integer quantity = requestDTO.getQuantity();
@@ -70,6 +68,7 @@ public class CartService {
         externalItem.setPrecoUnitario(50.0f);
         externalItem.setQuantity(quantity);
         externalItem.setPrecoTotal(quantity*externalItem.getPrecoUnitario());
+
 
 //        return gestaoItem.getItemById(itemId)
 //                .flatMap(externalItem -> {
@@ -105,8 +104,8 @@ public class CartService {
       }
 
 
-    public Mono<Cart> updateStatusToCart(UUID userId) {
-        //validateClient(userId);
+    public Mono<Cart> updateStatusToCart(Long userId, String authToken) {
+        validateClient(userId, authToken);
         return cartRepository.findByUserId(userId)
                 .flatMap(cart -> {
                     if (cart.getStatus() != Status.FINALIZADO) {
@@ -119,8 +118,8 @@ public class CartService {
                 });
     }
 
-    public Flux<Cart> finishStatusToCart(UUID userId) {
-        //validateClient(userId);
+    public Flux<Cart> finishStatusToCart(Long userId, String authToken) {
+        validateClient(userId, authToken);
         return cartRepository.findByUserIdAndStatusNot(userId, Status.FINALIZADO)
                 .flatMap(cart -> {
                     cart.setStatus(Status.FINALIZADO);
@@ -128,15 +127,19 @@ public class CartService {
                 });
     }
 
-    private void validateClient(UUID clientId) {
+    private void validateClient(Long clientId, String authToken) {
         try {
-            this.userClient.getUserById(clientId);
+            userClient.getUserById(clientId,  "Bearer " + authToken);
         } catch (FeignException.NotFound e) {
             throw new UsersNotFoundException();
+        }catch (FeignException.Unauthorized e){
+            throw new UnauthorizedAccessException();
         }
     }
 
-    public Mono<Cart> removeItemFromCart(UUID userId, Long itemId) {
+
+    public Mono<Cart> removeItemFromCart(Long userId, String authToken, Long itemId) {
+        validateClient(userId, authToken);
         return getCartByUserId(userId)
                 .flatMap(cart -> {
                     return cartItemRepository.findByCartId(cart.getId())

@@ -1,15 +1,14 @@
 package carrinhoCompra.carrinhoCompra.controller;
 
 import carrinhoCompra.carrinhoCompra.model.Users;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import reactor.core.publisher.Mono;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "Users", url = "http://localhost:8080")
 public interface UserClient {
     @GetMapping("/users/{id}")
-    Mono<Users> getUserById(@PathVariable("id") UUID id);
+    Users getUserById(@PathVariable("id") Long id, @RequestHeader("Authorization") String authHeader);
 }
