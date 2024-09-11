@@ -18,7 +18,7 @@ public class CartItem {
     private Long productId;
     private int quantity;
     private float precoTotal;
-    private float precoUnitario;
+//    private float precoUnitario;
 
     public Long getCartId() {
         return cartId;
@@ -31,13 +31,13 @@ public class CartItem {
     @Schema(hidden = true)
     private Long cartId;
 
-    public float getPrecoUnitario() {
-        return precoUnitario;
-    }
-
-    public void setPrecoUnitario(float precoUnitario) {
-        this.precoUnitario = precoUnitario;
-    }
+//    public float getPrecoUnitario() {
+//        return precoUnitario;
+//    }
+//
+//    public void setPrecoUnitario(float precoUnitario) {
+//        this.precoUnitario = precoUnitario;
+//    }
 
     public float getPrecoTotal() {
         return precoTotal;

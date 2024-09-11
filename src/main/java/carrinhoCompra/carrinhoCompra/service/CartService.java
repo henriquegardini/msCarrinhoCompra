@@ -76,9 +76,9 @@ public class CartService {
                     item.setItemId(externalItem.getItemId());
                     item.setDescricao(externalItem.getDescricao());
                     item.setProductId(externalItem.getProductId());
-                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
+//                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
                     item.setQuantity(requestDTO.getQuantity());
-                    item.setPrecoTotal(item.getQuantity()*item.getPrecoUnitario());
+                    item.setPrecoTotal(item.getQuantity()*item.getPrecoTotal());
 
         return cartRepository.findByUserIdAndStatusNot(userId, Status.FINALIZADO)
                 .flatMap(cart -> {
