@@ -45,9 +45,8 @@ public class CartService {
                 }).switchIfEmpty(Mono.defer(() -> createNewCart(userId, authToken)));
     }
 
-    public Flux<Cart> getCartByUser(Long userId, String authToken) {
-        validateClient(userId, authToken);
-        return cartRepository.findByUserIdOrderByIdAsc(userId);
+    public Flux<Cart> getCartById(Long id) {
+        return cartRepository.findById(id);
     }
 
 
@@ -66,15 +65,25 @@ public class CartService {
         Long itemId = requestDTO.getItemId();
         Integer quantity = requestDTO.getQuantity();
 
-        return gestaoItem.getItemById(itemId)
-                .flatMap(externalItem -> {
-                    CartItem item = new CartItem();
-                    item.setItemId(externalItem.getItemId());
-                    item.setDescricao(externalItem.getDescricao());
-                    item.setProductId(externalItem.getProductId());
-                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
-                    item.setQuantity(requestDTO.getQuantity());
-                    item.setPrecoTotal(item.getQuantity()*item.getPrecoUnitario());
+        //MOCK
+        CartItem externalItem = new CartItem();
+        externalItem.setItemId(itemId);
+        externalItem.setDescricao("Descrição de item com mock");
+        externalItem.setProductId(123L);
+        externalItem.setPrecoUnitario(50.0f);
+        externalItem.setQuantity(quantity);
+        externalItem.setPrecoTotal(quantity*externalItem.getPrecoUnitario());
+
+
+//        return gestaoItem.getItemById(itemId)
+//                .flatMap(externalItem -> {
+//                    CartItem item = new CartItem();
+//                    item.setItemId(externalItem.getItemId());
+//                    item.setDescricao(externalItem.getDescricao());
+//                    item.setProductId(externalItem.getProductId());
+//                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
+//                    item.setQuantity(requestDTO.getQuantity());
+//                    item.setPrecoTotal(item.getQuantity()*item.getPrecoUnitario());
 
         return cartRepository.findByUserIdAndStatusNot(userId, Status.FINALIZADO)
                 .flatMap(cart -> {
@@ -84,11 +93,11 @@ public class CartService {
                             .map(items -> {
                                 try {
                                     cart.setItems(items);
-                                    double total = 0.0;
-                                    for(CartItem item1 : items){
-                                        total+=item.getPrecoTotal();
-                                    }
-                                    cart.setTotalValue(total);
+//                                    double total = 0.0;
+//                                    for(CartItem item1 : items){
+//                                        total+=item.getPrecoTotal();
+//                                    }
+//                                    cart.setTotalValue(total);
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -96,7 +105,7 @@ public class CartService {
                             })
                             .flatMap(mono -> mono);
                     });
-                });
+                //});
       }
 
 
