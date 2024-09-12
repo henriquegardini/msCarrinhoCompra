@@ -13,12 +13,12 @@ public class CartItem {
     @Generated
     @Schema(hidden = true)
     private Long id;
-    private String itemId;
+    private Long itemId;
     private String descricao;
     private Long productId;
     private int quantity;
     private float precoTotal;
-//    private float precoUnitario;
+    private float precoUnitario;
 
     public Long getCartId() {
         return cartId;
@@ -31,13 +31,13 @@ public class CartItem {
     @Schema(hidden = true)
     private Long cartId;
 
-//    public float getPrecoUnitario() {
-//        return precoUnitario;
-//    }
-//
-//    public void setPrecoUnitario(float precoUnitario) {
-//        this.precoUnitario = precoUnitario;
-//    }
+    public float getPrecoUnitario() {
+        return precoUnitario;
+    }
+
+    public void setPrecoUnitario(float precoUnitario) {
+        this.precoUnitario = precoUnitario;
+    }
 
     public float getPrecoTotal() {
         return precoTotal;
@@ -71,11 +71,11 @@ public class CartItem {
         this.descricao = descricao;
     }
 
-    public String getItemId() {
+    public Long getItemId() {
         return itemId;
     }
 
-    public void setItemId(String itemId) {
+    public void setItemId(Long itemId) {
         this.itemId = itemId;
     }
 

@@ -45,6 +45,12 @@ public class CartService {
                 }).switchIfEmpty(Mono.defer(() -> createNewCart(userId, authToken)));
     }
 
+    public Flux<Cart> getCartByUser(Long userId, String authToken) {
+        validateClient(userId, authToken);
+        return cartRepository.findByUserIdOrderByIdAsc(userId);
+    }
+
+
     public Mono<Cart> createNewCart(Long userId, String authToken) {
         validateClient(userId, authToken);
         getCartByUserId(userId);
@@ -57,18 +63,8 @@ public class CartService {
     public Flux<Cart> addItemToCart(Long userId, String authToken, CartItemRequestDTO requestDTO) {
         validateClient(userId, authToken);
 
-        String itemId = String.valueOf(requestDTO.getItemId());
+        Long itemId = requestDTO.getItemId();
         Integer quantity = requestDTO.getQuantity();
-
-        //MOCK
-//        CartItem externalItem = new CartItem();
-//        externalItem.setItemId(itemId);
-//        externalItem.setDescricao("Descrição Mockada");
-//        externalItem.setProductId(123L);
-//        externalItem.setPrecoUnitario(50.0f);
-//        externalItem.setQuantity(quantity);
-//        externalItem.setPrecoTotal(quantity*externalItem.getPrecoUnitario());
-
 
         return gestaoItem.getItemById(itemId)
                 .flatMap(externalItem -> {
@@ -76,9 +72,9 @@ public class CartService {
                     item.setItemId(externalItem.getItemId());
                     item.setDescricao(externalItem.getDescricao());
                     item.setProductId(externalItem.getProductId());
-//                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
+                    item.setPrecoUnitario(externalItem.getPrecoUnitario());
                     item.setQuantity(requestDTO.getQuantity());
-                    item.setPrecoTotal(item.getQuantity()*item.getPrecoTotal());
+                    item.setPrecoTotal(item.getQuantity()*item.getPrecoUnitario());
 
         return cartRepository.findByUserIdAndStatusNot(userId, Status.FINALIZADO)
                 .flatMap(cart -> {
