@@ -120,7 +120,7 @@ public class CartService {
                 });
     }
 
-    private void validateClient(Long clientId, String authToken) {
+    public void validateClient(Long clientId, String authToken) {
         try {
             userClient.getUserById(clientId,  "Bearer " + authToken);
         } catch (FeignException.NotFound e) {
